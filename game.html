@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balon Patlatma Oyunu</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #gameCanvas {
+            border: 2px solid #333;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let score = 0;
+        let balloons = [];
+
+        canvas.addEventListener('click', (event) => {
+            const mouseX = event.clientX - canvas.offsetLeft;
+            const mouseY = event.clientY - canvas.offsetTop;
+
+            balloons.forEach((balloon, index) => {
+                if (mouseX >= balloon.x && mouseX <= balloon.x + balloon.size &&
+                    mouseY >= balloon.y && mouseY <= balloon.y + balloon.size) {
+                    balloons.splice(index, 1);
+                    score++;
+                }
+            });
+        });
+
+        function createBalloon() {
+            const balloon = {
+                x: Math.random() * (canvas.width - 50),
+                y: canvas.height,
+                size: Math.random() * 50 + 20,
+                speed: Math.random() * 3 + 1
+            };
+            balloons.push(balloon);
+        }
+
+        function update() {
+            balloons.forEach((balloon, index) => {
+                balloon.y -= balloon.speed;
+                if (balloon.y + balloon.size < 0) {
+                    balloons.splice(index, 1);
+                }
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            balloons.forEach(balloon => {
+                ctx.fillStyle = '#ff6347';
+                ctx.beginPath();
+                ctx.arc(balloon.x + balloon.size / 2, balloon.y + balloon.size / 2, balloon.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.fillStyle = '#333';
+            ctx.font = '24px Arial';
+            ctx.fillText(`Score: ${score}`, 10, 30);
+        }
+
+        function gameLoop() {
+            if (Math.random() < 0.02) {
+                createBalloon();
+            }
+
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
